@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static ContactsApp.Project;
 using System.Windows.Forms;
 using ContactsApp;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
@@ -30,29 +31,75 @@ namespace ContactsAppUI
         }
         public ContactsAppForm()
         {
-            InitializeComponent();
+             InitializeComponent();
             ContactsProject = ProjectManager.LoadFromFile();
+            FindTextBox.Text = "";
             if (ContactsProject == null)
             {
-                ContactsProject = new Project(new List<Contact>() { { new Contact("Потапов", "Егор", "уууу", "2123", DateTime.Now, new PhoneNumber(79130440063)) } });
+                PhoneNumber phone = new PhoneNumber(78005553535);
+                ContactsProject = new Project(new List<Contact>() { { new Contact("Потапов", "Егор", "e@mail.ru", "id546221", DateTime.Now, phone) } });
             }
-            RecreateContactList();
+            else
+            {
+                var contact = ContactsProject.CurrentContact;
+                if (contact == null)
+                {
+                    NameTextBox.Text = "";
+                    SurnameTextBox.Text = "";
+                    EmailTextBox.Text = "@";
+                    VKTextBox.Text = "";
+                    BirthdayDateTime.Text = DateTime.Now.ToString();
+                    PhoneTextBox.Text = 78005553535.ToString();
+                }
+                else
+                {
+                    NameTextBox.Text = contact.Name;
+                    SurnameTextBox.Text = contact.Surname;
+                    EmailTextBox.Text = contact.Email;
+                    VKTextBox.Text = contact.IdVK;
+                    BirthdayDateTime.Text = contact.BirthDate.ToString();
+                    PhoneTextBox.Text = contact.ContactNumber.Number.ToString();
+                }               
+            }
+            List<Contact> contactsWithBirthday = ContactsProject.GetContactsWithBirthday(DateTime.Now);
+            if (contactsWithBirthday.Count == 0)
+            {
+                birthdayListRichTextBox.Text = "Сегодня нет контактов с днем рождения";
+            }
+            else
+            {
+                birthdayListRichTextBox.Text = "Сегодня день рождения:\n";
+                foreach (var conact in contactsWithBirthday)
+                {
+                    birthdayListRichTextBox.Text += conact.Surname + " " + conact.Name + "\n";
+                }
+            }
+            CreateContactList();
         }
         /// <summary>
         /// Пересоздаёт лист со всеми контактами
         /// </summary>
         /// <param name="defaultSelectedIndex">номер контакта, который будет выделен после пересоздания</param>
-        void RecreateContactList(int defaultSelectedIndex = 0)
+        void RecreateContactList(string selectedName)
         {
-            var contactNames = ContactsProject.Contacts.ToArray();
+            List<Contact> contacts = new List<Contact>();
+            contacts = ContactsProject.GetSortedContacts(selectedName);
             ContactsListBox.Items.Clear();
-            for (int i = 0; i < contactNames.Length; i++)
+            foreach (var contact in contacts)
             {
-                ContactsListBox.Items.Add(contactNames[i].Surname + " " + contactNames[i].Name);
+                ContactsListBox.Items.Add(contact.Surname + " " + contact.Name);
             }
-            ContactsListBox.SelectedIndex = defaultSelectedIndex;
         }
-
+        void CreateContactList()
+        {
+            List<Contact> contacts = ContactsProject.Contacts;
+            contacts.Sort(new ContactComparer());
+            ContactsListBox.Items.Clear();
+            foreach (var contact in contacts)
+            {
+                ContactsListBox.Items.Add(contact.Surname + " " + contact.Name);
+            }
+        }
         /// <summary>
         /// Обработка кнопки "Добавить контакт"
         /// </summary>
@@ -66,7 +113,7 @@ namespace ContactsAppUI
             {
                 Contact contact = addEditContactForm.CurrentContact;
                 ContactsProject.Contacts.Add(contact);
-                RecreateContactList(ContactsProject.Contacts.ToArray().Length - 1);
+                CreateContactList();
                 ProjectManager.SaveToFile(ContactsProject);
             }
         }
@@ -84,10 +131,9 @@ namespace ContactsAppUI
             var dialogResult = addEditContactForm.ShowDialog();
             if (dialogResult == DialogResult.OK)
             {
-                RecreateContactList(ContactsListBox.SelectedIndex);
+                CreateContactList();
             }
         }
-
         /// <summary>
         /// Обработка кнопки "Удалить контакт"
         /// </summary>
@@ -95,9 +141,13 @@ namespace ContactsAppUI
         /// <param name="e"></param>
         private void RemoveContactButton_Click(object sender, EventArgs e)
         {
-            ContactsProject.Contacts.Remove(ContactsProject.Contacts[ContactsListBox.SelectedIndex]);
-            RecreateContactList();
-            ProjectManager.SaveToFile(ContactsProject);
+            DialogResult result = MessageBox.Show("Вы уверены, что хотите удалить контакт?", "Удаление контакта", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (result == DialogResult.Yes)
+            {
+                ContactsProject.Contacts.Remove(ContactsProject.Contacts[ContactsListBox.SelectedIndex]);
+                CreateContactList();
+                ProjectManager.SaveToFile(ContactsProject);
+            }
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
@@ -113,14 +163,28 @@ namespace ContactsAppUI
         /// <param name="e"></param>
         private void ContactsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var contact = ContactsProject.Contacts[ContactsListBox.SelectedIndex];
+            if (ContactsListBox.SelectedItem != null)
+            {
+                string surnameListBox = (string)ContactsListBox.SelectedItem;
+                List<Contact> contacts = new List<Contact>();
+                contacts = ContactsProject.Contacts;
+                foreach (var contact in contacts)
+                {
+                    string contactValue = contact.Surname + " " + contact.Name;
+                    if (surnameListBox == contactValue)
+                    {
+                        NameTextBox.Text = contact.Name;
+                        SurnameTextBox.Text = contact.Surname;
+                        EmailTextBox.Text = contact.Email;
+                        VKTextBox.Text = contact.IdVK;
+                        BirthdayDateTime.Text = contact.BirthDate.ToString("d");
+                        PhoneTextBox.Text = contact.ContactNumber.Number.ToString();
 
-            NameTextBox.Text = contact.Name;
-            SurnameTextBox.Text = contact.Surname;
-            EmailTextBox.Text = contact.Email;
-            VKTextBox.Text = contact.IdVK;
-            BirthdayDateTime.Text = contact.BirthDate.ToString("d");
-            PhoneTextBox.Text = contact.ContactNumber.Number.ToString();
+                        ContactsProject.CurrentContact = contact;
+                        ProjectManager.SaveToFile(ContactsProject);
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -133,36 +197,29 @@ namespace ContactsAppUI
             ProjectManager.SaveToFile(ContactsProject);
         }
 
-        private void addContactToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FindTextBox_TextChanged(object sender, EventArgs e)
         {
-            AddEditContactForm addEditContactForm = new AddEditContactForm();
-            var dialogResult = addEditContactForm.ShowDialog();
-            if (dialogResult == DialogResult.OK)
+            if (FindTextBox.Text == "")
             {
-                Contact contact = addEditContactForm.CurrentContact;
-                ContactsProject.Contacts.Add(contact);
-                RecreateContactList(ContactsProject.Contacts.ToArray().Length - 1);
-                ProjectManager.SaveToFile(ContactsProject);
+                CreateContactList();
             }
+            else
+            {
+                RecreateContactList(FindTextBox.Text);
+            }
+            //if (ContactsListBox.Items.Count == 0)
+            //{
+            //    Title.Text = "Без названия";
+            //    Category.Text = "-";
+            //}
         }
 
-        private void editContactToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ContactsAppForm_KeyDown(object sender, KeyEventArgs e)
         {
-            AddEditContactForm addEditContactForm = new AddEditContactForm();
-            Contact contact = ContactsProject.Contacts[ContactsListBox.SelectedIndex];
-            addEditContactForm.CurrentContact = contact;
-            var dialogResult = addEditContactForm.ShowDialog();
-            if (dialogResult == DialogResult.OK)
+            if (e.KeyValue == (char)Keys.Delete)
             {
-                RecreateContactList(ContactsListBox.SelectedIndex);
+                RemoveContactButton_Click(RemoveContactButton, null);
             }
-        }
-
-        private void removeContactToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ContactsProject.Contacts.Remove(ContactsProject.Contacts[ContactsListBox.SelectedIndex]);
-            RecreateContactList();
-            ProjectManager.SaveToFile(ContactsProject);
         }
     }
 }

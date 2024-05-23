@@ -45,6 +45,8 @@
             this.ContactsListBox = new System.Windows.Forms.ListBox();
             this.FindTextBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.birthdayListRichTextBox = new System.Windows.Forms.RichTextBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -63,6 +65,7 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -107,23 +110,25 @@
             // addContactToolStripMenuItem
             // 
             this.addContactToolStripMenuItem.Name = "addContactToolStripMenuItem";
-            this.addContactToolStripMenuItem.Size = new System.Drawing.Size(199, 26);
+            this.addContactToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.addContactToolStripMenuItem.Text = "Add contact";
-            this.addContactToolStripMenuItem.Click += new System.EventHandler(this.addContactToolStripMenuItem_Click);
+            this.addContactToolStripMenuItem.Click += new System.EventHandler(this.AddContactButton_Click);
             // 
             // editContactToolStripMenuItem
             // 
             this.editContactToolStripMenuItem.Name = "editContactToolStripMenuItem";
-            this.editContactToolStripMenuItem.Size = new System.Drawing.Size(199, 26);
+            this.editContactToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.editContactToolStripMenuItem.Text = "Edit contact";
-            this.editContactToolStripMenuItem.Click += new System.EventHandler(this.editContactToolStripMenuItem_Click);
+            this.editContactToolStripMenuItem.Click += new System.EventHandler(this.EditContactButton_Click);
             // 
             // removeContactToolStripMenuItem
             // 
             this.removeContactToolStripMenuItem.Name = "removeContactToolStripMenuItem";
-            this.removeContactToolStripMenuItem.Size = new System.Drawing.Size(199, 26);
+            this.removeContactToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.Delete;
+            this.removeContactToolStripMenuItem.ShowShortcutKeys = false;
+            this.removeContactToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.removeContactToolStripMenuItem.Text = "Remove contact";
-            this.removeContactToolStripMenuItem.Click += new System.EventHandler(this.removeContactToolStripMenuItem_Click);
+            this.removeContactToolStripMenuItem.Click += new System.EventHandler(this.RemoveContactButton_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -158,6 +163,7 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
             this.splitContainer1.Panel2.Controls.Add(this.tableLayoutPanel1);
             this.splitContainer1.Size = new System.Drawing.Size(800, 422);
             this.splitContainer1.SplitterDistance = 266;
@@ -207,6 +213,7 @@
             this.ContactsListBox.Name = "ContactsListBox";
             this.ContactsListBox.Size = new System.Drawing.Size(257, 340);
             this.ContactsListBox.TabIndex = 2;
+            this.ContactsListBox.SelectedIndexChanged += new System.EventHandler(this.ContactsListBox_SelectedIndexChanged);
             // 
             // FindTextBox
             // 
@@ -214,6 +221,7 @@
             this.FindTextBox.Name = "FindTextBox";
             this.FindTextBox.Size = new System.Drawing.Size(218, 22);
             this.FindTextBox.TabIndex = 1;
+            this.FindTextBox.TextChanged += new System.EventHandler(this.FindTextBox_TextChanged);
             // 
             // label1
             // 
@@ -223,6 +231,24 @@
             this.label1.Size = new System.Drawing.Size(36, 16);
             this.label1.TabIndex = 0;
             this.label1.Text = "Find:";
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.birthdayListRichTextBox);
+            this.groupBox1.Location = new System.Drawing.Point(23, 173);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(492, 237);
+            this.groupBox1.TabIndex = 1;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Именинники:";
+            // 
+            // birthdayListRichTextBox
+            // 
+            this.birthdayListRichTextBox.Location = new System.Drawing.Point(7, 22);
+            this.birthdayListRichTextBox.Name = "birthdayListRichTextBox";
+            this.birthdayListRichTextBox.Size = new System.Drawing.Size(479, 209);
+            this.birthdayListRichTextBox.TabIndex = 0;
+            this.birthdayListRichTextBox.Text = "";
             // 
             // tableLayoutPanel1
             // 
@@ -388,6 +414,7 @@
             this.Name = "ContactsAppForm";
             this.Text = "ContactsApp";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ContactsAppForm_FormClosed);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.ContactsAppForm_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.splitContainer1.Panel1.ResumeLayout(false);
@@ -395,6 +422,7 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.groupBox1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
@@ -433,5 +461,7 @@
         private System.Windows.Forms.TextBox PhoneTextBox;
         private System.Windows.Forms.TextBox EmailTextBox;
         private System.Windows.Forms.TextBox VKTextBox;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RichTextBox birthdayListRichTextBox;
     }
 }
