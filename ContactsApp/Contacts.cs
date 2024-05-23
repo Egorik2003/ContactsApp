@@ -81,11 +81,18 @@ namespace ContactsApp
             {
                 if (_email != value)
                 {
-                    if (value.Length < 50 && value.Contains("@"))
+                    if (value.Length < 50)
                     {
-                        _email = value;
+                        if (value.Contains("@"))
+                        {
+                            _email = value;
+                        }
+                        else
+                        {
+                            throw new ArgumentException("Email должен содержать символ @!");
+                        }
                     }
-                    else if (value.Length >= 50)
+                    else
                     {
                         throw new ArgumentException("Email не может быть длинее 50 символов!");
                     }
